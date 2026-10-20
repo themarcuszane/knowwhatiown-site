@@ -15,14 +15,22 @@ for p in "/" "/support.html" "/privacy.html" "/robots.txt" "/sitemap.xml" "/asse
 done
 
 # 2. unknown paths 404 (and serve the branded page)
+not_found=$(curl -s --max-time 20 "$BASE/definitely-not-a-page")
 c=$(code "$BASE/definitely-not-a-page"); [ "$c" = "404" ] && pass "404 for unknown path" || fail "unknown path returned $c"
+echo "$not_found" | grep -q 'Page not found' && pass "404 serves branded recovery page" || fail "404 missing branded recovery page"
 
 # 3. HTTP redirects to HTTPS (only meaningful for the real domain)
 if [ "$HOST" = "knowwhatiown.com" ]; then
-  loc=$(curl -sI --max-time 20 "http://$HOST/" | tr -d '\r' | awk -F': ' 'tolower($1)=="location"{print $2}')
-  case "$loc" in https://*) pass "http redirects to https";; *) fail "http did not redirect to https (location: $loc)";; esac
-  loc=$(curl -sI --max-time 20 "https://www.$HOST/" | tr -d '\r' | awk -F': ' 'tolower($1)=="location"{print $2}')
-  case "$loc" in https://knowwhatiown.com*) pass "www redirects to apex";; *) fail "www did not redirect to apex (location: $loc)";; esac
+  headers=$(curl -sI --max-time 20 "http://$HOST/")
+  code_http=$(printf '%s\n' "$headers" | head -n 1 | awk '{print $2}')
+  loc=$(printf '%s\n' "$headers" | tr -d '\r' | awk -F': ' 'tolower($1)=="location"{print $2; exit}')
+  [ "$code_http" = "301" ] || [ "$code_http" = "308" ] && pass "http uses a permanent redirect" || fail "http redirect status was $code_http"
+  case "$loc" in https://knowwhatiown.com/*|https://knowwhatiown.com) pass "http redirects to canonical https apex";; *) fail "http canonical redirect is $loc";; esac
+  headers=$(curl -sI --max-time 20 "https://www.$HOST/")
+  code_www=$(printf '%s\n' "$headers" | head -n 1 | awk '{print $2}')
+  loc=$(printf '%s\n' "$headers" | tr -d '\r' | awk -F': ' 'tolower($1)=="location"{print $2; exit}')
+  [ "$code_www" = "301" ] || [ "$code_www" = "308" ] && pass "www uses a permanent redirect" || fail "www redirect status was $code_www"
+  case "$loc" in https://knowwhatiown.com/*|https://knowwhatiown.com) pass "www redirects to canonical apex";; *) fail "www canonical redirect is $loc";; esac
 fi
 
 # 4. no cookies, no scripts, no third-party requests on any page
@@ -36,6 +44,8 @@ done
 
 # 5. content markers (what the App Store reviewer will actually look for)
 curl -s "$BASE/" | grep -q 'Know What I Own' && pass "landing page names the app" || fail "landing page missing app name"
+  curl -s "$BASE/" | grep -q 'href="support.html"' && pass "landing page links to support" || fail "landing page missing support link"
+  curl -s "$BASE/" | grep -q 'href="privacy.html"' && pass "landing page links to privacy" || fail "landing page missing privacy link"
 curl -s "$BASE/privacy.html" | grep -q 'Retention and Deletion' && pass "privacy policy complete" || fail "privacy policy missing sections"
 curl -s "$BASE/support.html" | grep -q 'admin@teamdrybox.com' && pass "support page has contact" || fail "support page missing contact"
 

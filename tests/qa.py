@@ -37,7 +37,8 @@ class Page(HTMLParser):
     def __init__(self):
         super().__init__(convert_charrefs=True)
         self.tags, self.ids, self.hrefs, self.srcs = [], [], [], []
-        self.meta, self.links, self.imgs_no_alt, self.h = {}, [], [], []
+        self.meta, self.links, self.imgs_no_alt, self.imgs_empty_alt, self.h = {}, [], [], [], []
+        self.details, self.summaries = 0, 0
         self.title, self._in_title, self.lang = "", False, None
         self._stack = []
 
@@ -56,10 +57,16 @@ class Page(HTMLParser):
             self.links.append((a.get("rel", ""), a["href"]))
         if tag == "img" and a.get("alt") is None:
             self.imgs_no_alt.append(a.get("src", "?"))
+        elif tag == "img" and not a.get("alt", "").strip():
+            self.imgs_empty_alt.append(a.get("src", "?"))
         if tag == "meta":
             key = a.get("name") or a.get("property")
             if key:
                 self.meta[key] = a.get("content", "")
+        if tag == "details":
+            self.details += 1
+        if tag == "summary":
+            self.summaries += 1
         if tag == "title":
             self._in_title = True
         if re.fullmatch(r"h[1-6]", tag):
@@ -139,6 +146,17 @@ for name, (pg, text) in parsed.items():
         fail(f"{where} duplicate ids: {sorted(dup)}")
     if pg.imgs_no_alt:
         fail(f"{where} images without alt attribute: {pg.imgs_no_alt}")
+    meaningful_empty_alt = [src for src in pg.imgs_empty_alt if not src.endswith(("apple-touch-icon.png", "favicon-32.png"))]
+    if meaningful_empty_alt:
+        fail(f"{where} meaningful images need descriptive alt text: {meaningful_empty_alt}")
+    if name == "index.html":
+        # FAQ uses native <details>, so it must remain usable without JavaScript.
+        if pg.details < 6:
+            fail(f"{where} expected at least 6 FAQ <details> items, found {pg.details}")
+        if pg.summaries != pg.details:
+            fail(f"{where} every FAQ <details> needs one <summary> ({pg.details} details, {pg.summaries} summaries)")
+        if not re.search(r"<summary[^>]*>[^<]*\S[^<]*</summary>", text, re.I):
+            fail(f"{where} FAQ items must contain non-empty summaries")
     if getattr(pg, "unclosed", 0):
         fail(f"{where} {pg.unclosed} unclosed/mismatched tags")
     if "script" in pg.tags:
@@ -157,6 +175,10 @@ for name, (pg, text) in parsed.items():
             fail(f"{where} og:image must be an absolute {ORIGIN} URL")
     if name == "404.html" and "noindex" not in pg.meta.get("robots", ""):
         fail(f"{where} 404 page should be noindex")
+    if name == "404.html":
+        visible = re.sub(r"<[^>]+>", " ", text)
+        if "Page not found" not in visible or "Back to Know What I Own" not in visible:
+            fail(f"{where} missing branded not-found message or recovery link")
 
     # links / assets / fragments
     for ref in pg.hrefs + pg.srcs + [h for _, h in pg.links]:
@@ -175,6 +197,28 @@ for name, (pg, text) in parsed.items():
             if tgt and u.fragment not in tgt[0].ids:
                 fail(f"{where} missing fragment target: {ref}")
     ok(f"{where} structure, metadata, links")
+
+# 1b. Key navigation must remain available on every public page.
+def has_link(pg, expected):
+    for href in pg.hrefs:
+        parsed_ref = urlparse(href)
+        path = parsed_ref.path.lstrip("/")
+        if expected.startswith("#") and parsed_ref.fragment == expected[1:]:
+            return True
+        if path == expected or path.endswith("/" + expected):
+            return True
+    return False
+
+for name, (pg, text) in parsed.items():
+    if name not in {"index.html", "404.html"}:
+        for ref in ("support.html", "privacy.html"):
+            if not has_link(pg, ref):
+                fail(f"[{name}] missing key navigation link: {ref}")
+    if name == "index.html":
+        for ref in ("support.html", "privacy.html", "#faq", "#features"):
+            if not has_link(pg, ref):
+                fail(f"[{name}] missing key link: {ref}")
+ok("key navigation links checked")
 
 # 2. CSS: no external fetches
 css = SITE / "assets" / "styles.css"
