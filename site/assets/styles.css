@@ -255,6 +255,12 @@ section { padding-block: clamp(48px, 8vw, 88px); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
+@media (forced-colors: active) {
+  .btn, .app-status, .folder, .plan, .qa, .faq details { border: 1px solid CanvasText; }
+  .btn-primary { background: ButtonFace; color: ButtonText; }
+  .btn-ghost, .app-status { color: ButtonText; }
+  .btn:focus-visible, a:focus-visible, summary:focus-visible { outline: 2px solid Highlight; }
+}
 @media print {
   .site-header, .site-footer, .skip { display: none; }
   body { background: #fff; color: #000; }
