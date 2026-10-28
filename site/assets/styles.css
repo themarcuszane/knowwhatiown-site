@@ -235,6 +235,31 @@ section { padding-block: clamp(48px, 8vw, 88px); }
 .qa h3 { margin: 0 0 .4em; }
 .qa p:last-child { margin-bottom: 0; }
 
+/* < 700px: the landing page was ~12 screens tall on a phone. Card lists become a swipe row
+   (next card peeks in to show there is more), secondary phone mockups are dropped, and the
+   remaining mockup and cards are tightened. Tablet and desktop layouts are unchanged. */
+@media (max-width: 699.98px) {
+  .cards, .split .trio {
+    display: flex; gap: 12px; overflow-x: auto; overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory; scroll-padding-inline: var(--gutter);
+    margin-inline: calc(var(--gutter) * -1); padding: 0 var(--gutter) 22px;
+    scrollbar-width: thin; align-items: flex-start;
+  }
+  .cards > li, .split .trio > li { flex: 0 0 min(82%, 20rem); scroll-snap-align: start; }
+  .cards .folder, .trio .folder { margin-top: 30px; padding: 18px 16px 16px; }
+  .cards .folder p, .trio .folder p { font-size: .93rem; line-height: 1.55; }
+  .cards .folder h3, .trio .folder h3 { font-size: 1.2rem; }
+  .split { grid-template-columns: minmax(0, 1fr); }  /* let the swipe row scroll instead of widening the page */
+  .split > * { min-width: 0; }
+  .split .art { display: none; }
+  .hero-grid { gap: 28px; }
+  .phone { width: min(100%, 230px); border-width: 6px; border-radius: 34px; }
+  .phone img { border-radius: 28px; }
+  .section-head { margin-bottom: 20px; }
+  .steps { gap: 20px; }
+  .steps li { padding-top: 46px; }
+}
+
 /* >= 700px */
 @media (min-width: 700px) {
   :root { --gutter: 32px; }
