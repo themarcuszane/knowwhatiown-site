@@ -1,5 +1,5 @@
 /* Know What I Own — shared stylesheet.
-   Palette and motifs follow the app: paper + ink + brass, folder-tab cards,
+   Palette and motifs follow the app (and teamdrybox.com): paper + deep green ink + copper, folder-tab cards,
    dotted leader lines, a double rule under a total.
    Fonts are subsetted (Latin) OFL fonts self-hosted in ./fonts — no external requests. */
 
@@ -16,22 +16,22 @@
 
 :root {
   /* Light (default) — contrast ratios checked against WCAG AA */
-  --page: #F6F5F1;
+  --page: #F4F5EE;
   --card: #FFFFFF;
-  --ink: #1F2A38;          /* 13.3:1 on page */
-  --soft: #5B6875;         /* 5.2:1 on page, 5.7:1 on card */
-  --line: #DDD9CF;
-  --dots: #B7B1A2;         /* decorative only */
-  --tab: #D9C9A3;
-  --tab-ink: #4F4020;      /* on tab */
-  --brass: #A9793F;        /* decorative: rules, borders (never small text) */
-  --brass-text: #8A5E2C;   /* 5.2:1 on page, 5.7:1 on card — small text and links */
-  --btn-bg: #8A5E2C;
-  --btn-bg-hover: #7A5225;
-  --btn-tx: #FFFFFF;       /* 5.7:1 on btn-bg */
-  --frame: #1F2A38;
-  --shadow: 0 1px 0 rgba(31, 42, 56, .04), 0 14px 32px -16px rgba(31, 42, 56, .28);
-  --focus: #8A5E2C;
+  --ink: #172C27;          /* 13.4:1 on page */
+  --soft: #53675F;         /* 5.5:1 on page, 6.0:1 on card */
+  --line: #D1D5CE;
+  --dots: #AEB8B1;         /* decorative only */
+  --tab: #E7EEE5;
+  --tab-ink: #3F554D;      /* on tab */
+  --brass: #B95F35;        /* decorative: rules, borders (never small text) */
+  --brass-text: #AA5730;   /* 4.65:1 on page, 5.1:1 on card — small text and links */
+  --btn-bg: #AA5730;
+  --btn-bg-hover: #944C2A;
+  --btn-tx: #FFFFFF;       /* 5.1:1 on btn-bg */
+  --frame: #172C27;
+  --shadow: 0 1px 0 rgba(23, 44, 39, .04), 0 14px 32px -16px rgba(23, 44, 39, .28);
+  --focus: #AA5730;
 
   --serif: "Zilla Slab", Rockwell, "Roboto Slab", Georgia, "Times New Roman", serif;
   --sans: "Public Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -44,22 +44,22 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --page: #1C1B18;
-    --card: #28261F;
-    --ink: #EDEAE2;        /* 14.3:1 on page */
-    --soft: #A39C8E;       /* 6.3:1 on page, 5.5:1 on card */
-    --line: #3D3A30;
-    --dots: #5D5848;
-    --tab: #4A4030;
-    --tab-ink: #E3D3A8;
-    --brass: #C79355;
-    --brass-text: #C79355; /* 6.3:1 on page, 5.6:1 on card */
-    --btn-bg: #C79355;
-    --btn-bg-hover: #D5A26A;
-    --btn-tx: #1C1B18;     /* 6.3:1 on btn-bg */
-    --frame: #0E0D0B;
+    --page: #0F1A17;
+    --card: #17241F;
+    --ink: #EEF1E8;        /* 15.6:1 on page */
+    --soft: #A3B2A9;       /* 8.0:1 on page, 7.3:1 on card */
+    --line: #2C3B35;
+    --dots: #45574F;
+    --tab: #1F332C;
+    --tab-ink: #BFD8CF;
+    --brass: #D9794B;
+    --brass-text: #D9794B; /* 5.75:1 on page, 5.2:1 on card */
+    --btn-bg: #D9794B;
+    --btn-bg-hover: #F0A05F;
+    --btn-tx: #0F1A17;     /* 5.75:1 on btn-bg */
+    --frame: #060D0B;
     --shadow: 0 1px 0 rgba(0, 0, 0, .3), 0 14px 32px -16px rgba(0, 0, 0, .7);
-    --focus: #C79355;
+    --focus: #D9794B;
   }
 }
 
